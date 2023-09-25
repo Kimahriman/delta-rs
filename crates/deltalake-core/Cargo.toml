@@ -167,6 +167,7 @@ gcs = ["object_store/gcp"]
 glue = ["s3", "rusoto_glue/rustls", "tracing", "hyper"]
 glue-native-tls = ["s3-native-tls", "rusoto_glue", "tracing", "hyper"]
 hdfs = ["datafusion-objectstore-hdfs"]
+# Security features that rely on native libraries (gsasl and gssapi_krb5, respectively)
 hdfs-native-security = ["hdfs-native/token", "hdfs-native/kerberos"]
 # used only for integration testing
 integration_test = ["fs_extra", "tempdir", "hdfs-native?/integration-test"]
