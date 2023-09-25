@@ -230,7 +230,7 @@ impl StorageIntegration {
                 Ok(())
             }
             Self::Local => Ok(()),
-            Self::Hdfs =>  Ok(()),
+            Self::Hdfs => Ok(()),
         }
     }
 }
