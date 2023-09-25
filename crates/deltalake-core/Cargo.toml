@@ -92,6 +92,8 @@ datafusion-objectstore-hdfs = { version = "0.1.3", default-features = false, fea
     "hdfs3",
     "try_spawn_blocking",
 ], optional = true }
+# hdfs native client
+hdfs-native = { version = "0.2", features = ["token", "kerberos", "rs", "object_store"], path = "../../hdfs-native/rust", optional = true }
 
 # S3 lock client
 rusoto_core = { version = "0.47", default-features = false, optional = true }
@@ -163,7 +165,7 @@ glue = ["s3", "rusoto_glue/rustls", "tracing", "hyper"]
 glue-native-tls = ["s3-native-tls", "rusoto_glue", "tracing", "hyper"]
 hdfs = ["datafusion-objectstore-hdfs"]
 # used only for integration testing
-integration_test = ["fs_extra", "tempdir"]
+integration_test = ["fs_extra", "tempdir", "hdfs-native?/integration-test"]
 json = ["parquet/json"]
 python = ["arrow/pyarrow"]
 s3-native-tls = [

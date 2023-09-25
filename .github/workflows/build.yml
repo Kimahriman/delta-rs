@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [main, "rust-v*"]
+    branches: [main, "rust-v*", "*"]
   pull_request:
     branches: [main, "rust-v*"]
 
@@ -118,10 +118,11 @@ jobs:
           toolchain: stable
           override: true
 
-      # - uses: actions/setup-java@v3
-      #   with:
-      #     distribution: "zulu"
-      #     java-version: "17"
+      # Needed for hdfs-native integration test
+      - uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
 
       # - uses: beyondstorage/setup-hdfs@master
       #   with:
@@ -139,7 +140,7 @@ jobs:
 
       - name: Run tests with rustls (default)
         run: |
-          cargo test --features integration_test,azure,s3,gcs,datafusion
+          cargo test --features integration_test,azure,s3,gcs,datafusion,hdfs-native
 
       - name: Run tests with native-tls
         run: |

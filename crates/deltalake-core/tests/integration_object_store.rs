@@ -74,6 +74,15 @@ async fn test_object_store_hdfs() -> TestResult {
     Ok(())
 }
 
+#[cfg(feature = "hdfs-native")]
+#[tokio::test]
+#[serial]
+async fn test_object_store_hdfs() -> TestResult {
+    let _dfs = hdfs_native::minidfs::MiniDfs::with_features(&std::collections::HashSet::new());
+    test_object_store(StorageIntegration::Hdfs, false).await?;
+    Ok(())
+}
+
 async fn read_write_test_onelake(integration: StorageIntegration, path: &Path) -> TestResult {
     let context = IntegrationContext::new(integration)?;
 

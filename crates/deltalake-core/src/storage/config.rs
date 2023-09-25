@@ -290,7 +290,18 @@ pub fn configure_store(
             })?;
             url_prefix_handler(store, _prefix)
         }
-        #[cfg(not(feature = "hdfs"))]
+        #[cfg(feature = "hdfs-native")]
+        ObjectStoreScheme::Hdfs => {
+            let client = hdfs_native::Client::new(url.as_ref()).map_err(|_| {
+                DeltaTableError::Generic(format!(
+                    "failed to create HadoopFileSystem for {}",
+                    url.as_ref()
+                ))
+            })?;
+            let store = hdfs_native::object_store::HdfsObjectStore::new(client);
+            url_prefix_handler(store, _prefix)
+        }
+        #[cfg(not(any(feature = "hdfs", feature = "hdfs-native")))]
         ObjectStoreScheme::Hdfs => Err(DeltaTableError::MissingFeature {
             feature: "hdfs",
             url: url.as_ref().into(),

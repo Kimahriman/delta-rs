@@ -179,9 +179,7 @@ impl Drop for IntegrationContext {
             StorageIntegration::Onelake => (),
             StorageIntegration::OnelakeAbfs => (),
             StorageIntegration::Local => (),
-            StorageIntegration::Hdfs => {
-                hdfs_cli::delete_dir(&self.bucket).unwrap();
-            }
+            StorageIntegration::Hdfs => {}
         };
     }
 }
@@ -232,10 +230,7 @@ impl StorageIntegration {
                 Ok(())
             }
             Self::Local => Ok(()),
-            Self::Hdfs => {
-                hdfs_cli::create_dir(name)?;
-                Ok(())
-            }
+            Self::Hdfs =>  Ok(()),
         }
     }
 }
@@ -586,7 +581,7 @@ pub mod hdfs_cli {
                 "dfs",
                 "-mkdir",
                 "-p",
-                format!("/{}", dir_name.as_ref()).as_str(),
+                format!("hdfs://localhost:9000/{}", dir_name.as_ref()).as_str(),
             ])
             .spawn()
             .expect("hdfs command is installed");
