@@ -1866,6 +1866,8 @@ fn _internal(py: Python, m: &PyModule) -> PyResult<()> {
     deltalake::azure::register_handlers(None);
     deltalake::gcp::register_handlers(None);
     deltalake_mount::register_handlers(None);
+    #[cfg(feature = "hdfs")]
+    deltalake::hdfs::register_handlers(None);
 
     m.add("DeltaError", py.get_type::<DeltaError>())?;
     m.add("CommitFailedError", py.get_type::<CommitFailedError>())?;
