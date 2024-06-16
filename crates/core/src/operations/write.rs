@@ -49,9 +49,7 @@ use super::writer::{DeltaWriter, WriterConfig};
 use super::CreateBuilder;
 use crate::delta_datafusion::expr::fmt_expr_to_sql;
 use crate::delta_datafusion::expr::parse_predicate_expression;
-use crate::delta_datafusion::{
-    create_physical_expr_fix, find_files, register_store, DeltaScanBuilder,
-};
+use crate::delta_datafusion::{find_files, register_store, DeltaScanBuilder};
 use crate::delta_datafusion::{DataFusionMixins, DeltaDataChecker};
 use crate::errors::{DeltaResult, DeltaTableError};
 use crate::kernel::{Action, Add, Metadata, PartitionsExt, Remove, StructType};
@@ -320,7 +318,7 @@ impl WriteBuilder {
                 }?;
                 let mut builder = CreateBuilder::new()
                     .with_log_store(self.log_store.clone())
-                    .with_columns(schema.fields().clone())
+                    .with_columns(schema.fields().cloned())
                     .with_configuration(self.configuration.clone());
                 if let Some(partition_columns) = self.partition_columns.as_ref() {
                     builder = builder.with_partition_columns(partition_columns.clone())
@@ -522,8 +520,8 @@ async fn execute_non_empty_expr(
     // Apply the negation of the filter and rewrite files
     let negated_expression = Expr::Not(Box::new(Expr::IsTrue(Box::new(expression.clone()))));
 
-    let predicate_expr =
-        create_physical_expr_fix(negated_expression, &input_dfschema, state.execution_props())?;
+    let predicate_expr = state.create_physical_expr(negated_expression, &input_dfschema)?;
+
     let filter: Arc<dyn ExecutionPlan> =
         Arc::new(FilterExec::try_new(predicate_expr, scan.clone())?);
 
@@ -979,7 +977,7 @@ mod tests {
 
         let table = DeltaOps::new_in_memory()
             .create()
-            .with_columns(table_schema.fields().clone())
+            .with_columns(table_schema.fields().cloned())
             .await
             .unwrap();
         assert_eq!(table.version(), 0);
@@ -1242,7 +1240,7 @@ mod tests {
         assert_eq!(table.version(), 1);
         let new_schema = table.metadata().unwrap().schema().unwrap();
         let fields = new_schema.fields();
-        let names = fields.iter().map(|f| f.name()).collect::<Vec<_>>();
+        let names = fields.map(|f| f.name()).collect::<Vec<_>>();
         assert_eq!(names, vec!["id", "value", "modified", "inserted_by"]);
     }
 
@@ -1300,7 +1298,7 @@ mod tests {
         assert_eq!(table.version(), 1);
         let new_schema = table.metadata().unwrap().schema().unwrap();
         let fields = new_schema.fields();
-        let mut names = fields.iter().map(|f| f.name()).collect::<Vec<_>>();
+        let mut names = fields.map(|f| f.name()).collect::<Vec<_>>();
         names.sort();
         assert_eq!(names, vec!["id", "inserted_by", "modified", "value"]);
         let part_cols = table.metadata().unwrap().partition_columns.clone();
@@ -1417,7 +1415,7 @@ mod tests {
         let table = DeltaOps::new_in_memory()
             .create()
             .with_save_mode(SaveMode::ErrorIfExists)
-            .with_columns(schema.fields().clone())
+            .with_columns(schema.fields().cloned())
             .await
             .unwrap();
         assert_eq!(table.version(), 0);
@@ -1439,7 +1437,7 @@ mod tests {
         let table = DeltaOps::new_in_memory()
             .create()
             .with_save_mode(SaveMode::ErrorIfExists)
-            .with_columns(schema.fields().clone())
+            .with_columns(schema.fields().cloned())
             .await
             .unwrap();
         assert_eq!(table.version(), 0);
@@ -1455,7 +1453,7 @@ mod tests {
 
         let table = DeltaOps::new_in_memory()
             .create()
-            .with_columns(table_schema.fields().clone())
+            .with_columns(table_schema.fields().cloned())
             .await
             .unwrap();
         assert_eq!(table.version(), 0);
